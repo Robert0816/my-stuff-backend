@@ -10,14 +10,14 @@ import org.springframework.web.bind.annotation.RestController;
 import de.telekom.sea.mystuff.backend.entities.Item;
 import de.telekom.sea.mystuff.backend.repo.MystuffRepo;
 
-@RequestMapping("/api/v1/items")
+@RequestMapping("/api/v1")
 @RestController
 public class MyStuffRestController {
 
-//		@RequestMapping
-//		String test() {
-//			return "Hello World!!";
-//		}
+		@RequestMapping("/items")
+		String test() {
+			return "Hello World!!";
+		}
 
 	private MystuffRepo mystuffRepo;
 
