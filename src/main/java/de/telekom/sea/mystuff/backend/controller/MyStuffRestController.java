@@ -7,7 +7,6 @@ import javax.management.relation.RelationNotFoundException;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.dao.EmptyResultDataAccessException;
 import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -16,20 +15,16 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
 import de.telekom.sea.mystuff.backend.entities.Item;
 import de.telekom.sea.mystuff.backend.repo.MystuffRepo;
 
-@RequestMapping("/api/v1")
+@RequestMapping("/api/v1/items/")
 @RestController
 public class MyStuffRestController {
-
-	@RequestMapping("/items")
-	String test() {
-		return "Hello World!!";
-	}
 
 	private MystuffRepo mystuffRepo;
 
@@ -39,7 +34,7 @@ public class MyStuffRestController {
 		this.mystuffRepo = mystuffRepo;
 	}
 
-	@GetMapping("/all")
+	@GetMapping
 	public List<Item> getAllItems() {
 		return this.mystuffRepo.findAll();
 	}
@@ -51,12 +46,14 @@ public class MyStuffRestController {
 		});
 	}
 
-	@PostMapping("/items")
+	@PostMapping
+	@ResponseStatus(code = HttpStatus.CREATED)
 	public Item createItem(@Validated @RequestBody Item newItem) {
 		return mystuffRepo.save(newItem);
 	}
 
-	@DeleteMapping("items/{id}")
+	@DeleteMapping("{id}")
+	@ResponseStatus(code = HttpStatus.NO_CONTENT)
 	public void delete(@PathVariable Long id) throws RelationNotFoundException {
 		try {
 			mystuffRepo.deleteById(id);
@@ -65,21 +62,11 @@ public class MyStuffRestController {
 		}
 	}
 
-//	@PutMapping("items/{id}")
-//	public Item replace(@RequestBody Item newItem, @PathVariable Long id) {
-//		return mystuffRepo.findById(id).map(item-> {
-//			item.setName(newItem.getName());
-//			item.setDescription(newItem.getDescription());
-//			item.setAmount(newItem.getAmount());
-//			item.setLocation(newItem.getLocation());
-//		}).orElseThrow(() -> new ResourceNotFoundException(id));
-//	}
-
-	@PutMapping("itemsFix/{id}")
-	public List<Item> updateItem(@PathVariable(value = "id") Long id, @Validated @RequestBody Item newItem)
+	@PutMapping("{id}")
+	public Item updateItem(@PathVariable(value = "id") Long id, @Validated @RequestBody Item newItem)
 			throws RelationNotFoundException {
 		Item item = mystuffRepo.findById(id)
-				.orElseThrow(() -> new RelationNotFoundException("Employee not found for this id :: " + id));
+				.orElseThrow(() -> new RelationNotFoundException("Id not found for this id :: " + id));
 
 		item.setName(newItem.getName());
 		item.setDescription(newItem.getDescription());
@@ -87,7 +74,7 @@ public class MyStuffRestController {
 		item.setLocation(newItem.getLocation());
 		item.setLastUsed(newItem.getLastUsed());
 		final Item updatedItem = mystuffRepo.save(item);
-		return (List<Item>) ResponseEntity.ok(updatedItem);
+		return updatedItem;
 	}
 
 }
